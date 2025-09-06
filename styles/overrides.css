@@ -1,0 +1,8 @@
+/* Custom overrides for brand colors (max 5 colors: blue primary, neutrals, purple accent) */
+:root {
+  --brand-blue: #2563eb; /* primary */
+  --brand-purple: #7c3aed; /* accent */
+  --neutral-white: #ffffff;
+  --neutral-gray-700: #374151;
+  --neutral-gray-900: #111827;
+}
