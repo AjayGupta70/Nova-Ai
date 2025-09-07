@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
 import { FloatingContacts, WhatsAppFloat } from "@/components/whatsapp-float"
 import { SectionHeading } from "@/components/section-heading"
 
