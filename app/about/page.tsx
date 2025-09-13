@@ -1,16 +1,26 @@
 import Image from "next/image"
 import { Navbar } from "@/components/navbar"
-// import { Footer } from "@/components/footer"
 import { WhatsAppFloat } from "@/components/whatsapp-float"
 import { SectionHeading } from "@/components/section-heading"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 
 export const metadata = {
   title: "About — NovaAi Solution",
   description: "Learn about our vision, mission, and team.",
 }
 
-export default function AboutPage() {
+// ✅ Fetch only core team members
+async function getCoreTeam() {
+  const res = await fetch("http://localhost:8080/api/v1/employees/core-team", {
+    next: { revalidate: 60 }, // revalidate every 60s
+  })
+  if (!res.ok) throw new Error("Failed to fetch core team")
+  return res.json()
+}
+
+export default async function AboutPage() {
+  const coreTeam = await getCoreTeam()
+
   return (
     <main>
       <Navbar />
@@ -22,117 +32,68 @@ export default function AboutPage() {
         />
         <p className="text-gray-700 text-center max-w-3xl mx-auto leading-relaxed">
           At NovaAi Solution, we create AI-powered web, mobile, and automation platforms.
-          Our mission is to help businesses embrace intelligent technology that scales with their vision. 
+          Our mission is to help businesses embrace intelligent technology that scales with their vision.
           With expertise in AI/ML, automation, and full-stack engineering, we are shaping the future of digital transformation.
         </p>
 
         {/* Team Section */}
-       {/* Team Section */}
-<div>
-  <h2 className="text-2xl font-semibold text-center mb-8">Our Team</h2>
-  <div className="grid gap-6 md:grid-cols-4">
-    {[
-      { name: "Tony Stark", role: "CEO", img: "/team-member.png" },
-      { name: "Tabitha", role: "AI Engineer", img: "/team-member.png" },
-      { name: "Tom Cruise", role: "Full Stack Developer", img: "/team-member.png" },
-      { name: "chris hemsworth", role: "UI/UX Designer", img: "/team-member.png" },
-    ].map((member, i) => (
-      <Card
-        key={i}
-        className="rounded-2xl shadow-md hover:shadow-lg transition text-center p-6"
-      >
-        <div className="flex justify-center">
-          <div className="h-28 w-28 rounded-full overflow-hidden border border-gray-200">
-            <Image
-              src={member.img}
-              alt={member.name}
-              width={112}
-              height={112}
-              className="object-cover"
-            />
+        <div>
+          <h2 className="text-2xl font-semibold text-center mb-10">Our Core Team</h2>
+          <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {coreTeam.map((member: any, i: number) => (
+              <Card
+                key={i}
+                className="rounded-2xl shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300 text-center p-6 bg-white"
+              >
+                <div className="flex justify-center">
+                  <div className="h-28 w-28 rounded-full overflow-hidden border-4 border-gray-100 shadow-sm">
+                    <Image
+                      src={member.profileImageUrl || "/team-member.png"}
+                      alt={member.fullName}
+                      width={112}
+                      height={112}
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+                <p className="mt-4 font-semibold text-gray-900">{member.fullName}</p>
+                <p className="text-sm text-gray-500">{member.position}</p>
+              </Card>
+            ))}
           </div>
         </div>
-        <p className="mt-4 font-medium">{member.name}</p>
-        <p className="text-xs text-gray-600">{member.role}</p>
-      </Card>
-    ))}
-  </div>
-</div>
-
 
         {/* Why Choose Us */}
         <div>
-          <h2 className="text-2xl font-semibold text-center mb-8">Why Choose NovaAi?</h2>
+          <h2 className="text-2xl font-semibold text-center mb-10">Why Choose NovaAi?</h2>
           <div className="grid gap-6 md:grid-cols-3">
-            <Card className="rounded-2xl shadow-md hover:shadow-lg transition p-6 text-center">
-              <CardHeader>
-                <CardTitle className="text-lg">🚀 Innovation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed">
-                  We bring the latest in AI, automation, and engineering to transform ideas into scalable solutions.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl shadow-md hover:shadow-lg transition p-6 text-center">
-              <CardHeader>
-                <CardTitle className="text-lg">🤝 Expertise</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed">
-                  With a team of skilled engineers and AI specialists, we deliver quality at every stage of development.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl shadow-md hover:shadow-lg transition p-6 text-center">
-              <CardHeader>
-                <CardTitle className="text-lg">🔒 Trust</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed">
-                  We prioritize security, reliability, and transparency to build lasting relationships with clients.
-                </p>
-              </CardContent>
-            </Card>
+            {[
+              {
+                title: "🚀 Innovation",
+                text: "We bring the latest in AI, automation, and engineering to transform ideas into scalable solutions.",
+              },
+              {
+                title: "🤝 Expertise",
+                text: "With a team of skilled engineers and AI specialists, we deliver quality at every stage of development.",
+              },
+              {
+                title: "🔒 Trust",
+                text: "We prioritize security, reliability, and transparency to build lasting relationships with clients.",
+              },
+            ].map((item, i) => (
+              <Card
+                key={i}
+                className="rounded-2xl shadow-md hover:shadow-xl transition p-6 text-center bg-white"
+              >
+                <CardContent>
+                  <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{item.text}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
-
-        {/* CEO, Vision & Office */}
-        {/* <div>
-          <h2 className="text-2xl font-semibold text-center mb-8">Leadership & Office</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card className="rounded-2xl shadow-md hover:shadow-xl transition p-6 text-center">
-              <CardHeader>
-                <CardTitle className="text-lg">CEO</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 font-medium">Ajay Gupta</p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl shadow-md hover:shadow-xl transition p-6 text-center">
-              <CardHeader>
-                <CardTitle className="text-lg">Vision & Mission</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed">
-                  Empower businesses with AI, automation, and intelligent solutions that create measurable impact.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl shadow-md hover:shadow-xl transition p-6 text-center">
-              <CardHeader>
-                <CardTitle className="text-lg">Office</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700">
-                  NovaAi Solution, Tech Park, Bengaluru, India
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div> */}
       </section>
-      {/* <Footer /> */}
       <WhatsAppFloat />
     </main>
   )

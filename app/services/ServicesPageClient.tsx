@@ -18,10 +18,21 @@ type Service = {
   imageUrl: string
 }
 
+// Utility for truncating items with "+X more"
+function getTruncatedItems(items: string[], limit = 3) {
+  const shown = items.slice(0, limit)
+  const hiddenCount = items.length > limit ? items.length - limit : 0
+  return { shown, hiddenCount }
+}
+
 export default function ServicesPageClient({ detailed = true }) {
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Track expanded state for technologies and key features per service
+  const [expandedTechIds, setExpandedTechIds] = useState<Set<string>>(new Set())
+  const [expandedFeatureIds, setExpandedFeatureIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -52,6 +63,26 @@ export default function ServicesPageClient({ detailed = true }) {
     fetchServices()
   }, [])
 
+  // Toggle expand/collapse for technologies
+  const toggleTechExpand = (id: string) => {
+    setExpandedTechIds((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(id)) newSet.delete(id)
+      else newSet.add(id)
+      return newSet
+    })
+  }
+
+  // Toggle expand/collapse for features
+  const toggleFeatureExpand = (id: string) => {
+    setExpandedFeatureIds((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(id)) newSet.delete(id)
+      else newSet.add(id)
+      return newSet
+    })
+  }
+
   return (
     <main>
       <Navbar />
@@ -64,57 +95,134 @@ export default function ServicesPageClient({ detailed = true }) {
 
         {!loading && !error && (
           <div className="grid gap-6 md:grid-cols-3">
-            {services.map((s) => (
-              <Card
-                key={s.id}
-                className="rounded-2xl border border-gray-300 shadow-sm transition-all duration-300 group hover:shadow-lg hover:border-blue-500 cursor-pointer"
-              >
-                <CardHeader className="flex flex-col items-center">
-                  <div className="h-32 w-full max-w-xs rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                    <Image
-                      src={s.imageUrl}
-                      alt={s.title}
-                      width={400}
-                      height={200}
-                      className="object-contain transition-transform group-hover:scale-110"
-                    />
-                  </div>
-                  <CardTitle className="text-xl font-semibold text-center mt-2">{s.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-gray-700">
-                  <p className="text-gray-800 font-medium">💬 {s.description}</p>
-                  {detailed && (
-                    <>
-                      <div>
-                        <strong>💲 Pricing:</strong> ${s.pricing.toFixed(2)}
-                      </div>
+            {services.map((s) => {
+              const techExpanded = expandedTechIds.has(s.id)
+              const featureExpanded = expandedFeatureIds.has(s.id)
 
-                      <div>
-                        <strong>⏱️ Delivery:</strong> {s.delivery} day{s.delivery > 1 ? 's' : ''}
-                      </div>
+              const { shown: shownTechs, hiddenCount: moreTechs } = getTruncatedItems(s.technologies)
+              const { shown: shownFeatures, hiddenCount: moreFeatures } = getTruncatedItems(s.keyFeatures)
 
-                      <div>
-                        <strong>🛠️ Technologies:</strong>
-                        <ul className="list-disc list-inside pl-2">
-                          {s.technologies.map((tech, idx) => (
-                            <li key={idx}>{tech}</li>
-                          ))}
-                        </ul>
-                      </div>
+              const techsToShow = techExpanded ? s.technologies : shownTechs
+              const featuresToShow = featureExpanded ? s.keyFeatures : shownFeatures
 
-                      <div>
-                        <strong>🚀 Key Features:</strong>
-                        <ul className="list-disc list-inside pl-2">
-                          {s.keyFeatures.map((feature, idx) => (
-                            <li key={idx}>{feature}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+              return (
+                <Card
+                  key={s.id}
+                  className="rounded-2xl border border-gray-300 shadow-sm transition-all duration-300 group hover:shadow-lg hover:border-blue-500 cursor-pointer"
+                >
+                  <CardHeader className="flex flex-col items-center">
+                    <div className="h-32 w-full max-w-xs rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                      <Image
+                        src={s.imageUrl}
+                        alt={s.title}
+                        width={400}
+                        height={200}
+                        className="object-contain transition-transform group-hover:scale-110"
+                      />
+                    </div>
+                    <CardTitle className="text-xl font-semibold text-center mt-2">{s.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm text-gray-700">
+                    <p className="text-sm text-gray-500 mt-1">{s.description}</p>
+                    {detailed && (
+                      <>
+                        <div>
+                          <strong>💲 Pricing:</strong> ${s.pricing.toFixed(2)}
+                        </div>
+
+                        <div>
+                          <strong>⏱️ Delivery:</strong> {s.delivery} day{s.delivery > 1 ? "s" : ""}
+                        </div>
+
+                        <div>
+                          <strong>🛠️ Technologies:</strong>
+                          <div className="flex flex-wrap gap-2 mt-1 overflow-hidden transition-all duration-300 max-h-[200px]">
+                            {techsToShow.map((tech, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full"
+                              >
+                                {tech}
+                              </span>
+                            ))}
+
+                            {moreTechs > 0 && !techExpanded && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleTechExpand(s.id)
+                                }}
+                                className="inline-block bg-green-200 text-green-900 text-xs font-medium px-3 py-1 rounded-full cursor-pointer select-none"
+                                aria-label={`Show all technologies for ${s.title}`}
+                              >
+                                +{moreTechs} more
+                              </button>
+                            )}
+
+                            {techExpanded && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleTechExpand(s.id)
+                                }}
+                                className="inline-block bg-green-300 text-green-900 text-xs font-medium px-3 py-1 rounded-full cursor-pointer select-none"
+                                aria-label={`Show less technologies for ${s.title}`}
+                              >
+                                Show less
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <strong>🚀 Key Features:</strong>
+                          <div className="flex flex-wrap gap-2 mt-1 overflow-hidden transition-all duration-300 max-h-[200px]">
+                            {featuresToShow.map((feature, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full"
+                              >
+                                {feature}
+                              </span>
+                            ))}
+
+                            {moreFeatures > 0 && !featureExpanded && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleFeatureExpand(s.id)
+                                }}
+                                className="inline-block bg-blue-200 text-blue-900 text-xs font-medium px-3 py-1 rounded-full cursor-pointer select-none"
+                                aria-label={`Show all key features for ${s.title}`}
+                              >
+                                +{moreFeatures} more
+                              </button>
+                            )}
+
+                            {featureExpanded && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleFeatureExpand(s.id)
+                                }}
+                                className="inline-block bg-blue-300 text-blue-900 text-xs font-medium px-3 py-1 rounded-full cursor-pointer select-none"
+                                aria-label={`Show less key features for ${s.title}`}
+                              >
+                                Show less
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </section>
