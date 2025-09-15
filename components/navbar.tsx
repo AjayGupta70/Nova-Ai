@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { NovaAiLogo } from "./NovaAiLogo";
+import { WebAryaLogo } from "./NovaAiLogo";
 
 const LINKS = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/products", label: "Products" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "ContactUs" },
+  { href: "/contact", label: "Contact Us" },
 ];
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
@@ -42,7 +42,7 @@ export function Navbar() {
       <nav className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <NovaAiLogo />
+          <WebAryaLogo />
         </Link>
 
         {/* Desktop Links */}

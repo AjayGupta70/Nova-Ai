@@ -13,6 +13,37 @@ interface DemoScheduleRequest {
   preferredDemoTime: string;
 }
 
+function InputField({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  onChange,
+  required = true,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  placeholder?: string;
+  onChange: () => void;
+  required?: boolean;
+}) {
+  return (
+    <div className="flex flex-col">
+      <label htmlFor={name} className="text-gray-700 text-sm font-medium mb-1">{label}</label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        placeholder={placeholder}
+        required={required}
+        onChange={onChange}
+        className="rounded-lg bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+      />
+    </div>
+  );
+}
+
 export function DemoForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -61,7 +92,7 @@ export function DemoForm() {
       });
 
       if (!res.ok) throw new Error(await res.text());
-      setSuccess("Demo booked! We'll contact you shortly.");
+      setSuccess("🎉 Demo booked! We'll contact you shortly.");
       form.reset();
     } catch (err: any) {
       setError(err?.message || "Something went wrong.");
@@ -76,44 +107,48 @@ export function DemoForm() {
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-md w-full max-w-2xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-800 text-center">Schedule a Demo</h2>
-      <form
-        onSubmit={handleSubmit}
-        className="grid gap-4"
-        onFocus={handleInputChange}
-      >
-        <div className="grid gap-3 md:grid-cols-2">
-          <input name="firstName" required placeholder="First Name" className="input" onChange={handleInputChange} />
-          <input name="lastName" required placeholder="Last Name" className="input" onChange={handleInputChange} />
+    <div>
+      <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">Schedule a Demo</h2>
+      <form onSubmit={handleSubmit} className="grid gap-3" onFocus={handleInputChange}>
+        <div className="grid gap-2 md:grid-cols-2">
+          <InputField label="First Name" name="firstName" placeholder="John" onChange={handleInputChange} />
+          <InputField label="Last Name" name="lastName" placeholder="Doe" onChange={handleInputChange} />
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <input name="email" type="email" required placeholder="Email" className="input" onChange={handleInputChange} />
-          <input name="phoneNumber" required placeholder="Phone Number" className="input" onChange={handleInputChange} />
+        <div className="grid gap-2 md:grid-cols-2">
+          <InputField label="Email" name="email" type="email" placeholder="you@example.com" onChange={handleInputChange} />
+          <InputField label="Phone Number" name="phoneNumber" placeholder="+1234567890" onChange={handleInputChange} />
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <input name="jobTitle" required placeholder="Job Title" className="input" onChange={handleInputChange} />
-          <input name="serviceInterest" required placeholder="Service Interest" className="input" onChange={handleInputChange} />
+        <div className="grid gap-2 md:grid-cols-2">
+          <InputField label="Job Title" name="jobTitle" placeholder="Product Manager" onChange={handleInputChange} />
+          <InputField label="Service Interest" name="serviceInterest" placeholder="Web Development" onChange={handleInputChange} />
         </div>
-        <textarea
-          name="projectDetails"
-          required
-          placeholder="Project Details"
-          className="rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          onChange={handleInputChange}
-        />
-        <input
-          name="preferredDemoTime"
-          type="datetime-local"
-          min={new Date().toISOString().slice(0, 16)}
-          required
-          className="input"
-          onChange={handleInputChange}
-        />
+        <div className="flex flex-col">
+          <label htmlFor="projectDetails" className="text-gray-700 text-sm font-medium mb-1">Project Details</label>
+          <textarea
+            id="projectDetails"
+            name="projectDetails"
+            placeholder="Describe your project..."
+            required
+            onChange={handleInputChange}
+            className="rounded-lg bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="preferredDemoTime" className="text-gray-700 text-sm font-medium mb-1">Preferred Demo Time</label>
+          <input
+            id="preferredDemoTime"
+            name="preferredDemoTime"
+            type="datetime-local"
+            min={new Date().toISOString().slice(0, 16)}
+            required
+            onChange={handleInputChange}
+            className="rounded-lg bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          />
+        </div>
         <button
           type="submit"
           disabled={loading}
-          className={`rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 transition-colors ${
+          className={`rounded-lg bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors ${
             loading ? "opacity-70 cursor-not-allowed" : ""
           }`}
         >
